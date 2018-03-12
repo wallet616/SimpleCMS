@@ -18,6 +18,78 @@ class Product {
         return $link;
     }
 
+
+    public static function get_categoreis_path($db, $category_id, $language) : Response 
+    {
+        $response = new Response();
+
+        $db_table_categories = $GLOBALS["db_table_categories"];
+        $name_with_lang = "name_" . $language;
+        $query = "SELECT category_id, subcategory_of, $name_with_lang AS name FROM $db_table_categories";
+        $statement = $db->prepare($query);
+        $statement->execute();
+        $result = $statement->fetchAll(PDO::FETCH_OBJ);
+
+        if ($statement->rowCount() > 0) 
+        {
+            // Change from string to int.
+            foreach($result as $item)
+            {
+                $item->category_id = intval($item->category_id);
+                $item->subcategory_of = intval($item->subcategory_of);
+            }
+
+            $debug_counter = $statement->rowCount();
+            $path = array();
+            $last_added = null;
+            foreach($result as $item)
+            {
+                if ($item->category_id == $category_id)
+                {
+                    $last_added = $item;
+                    array_push($path, $item);
+                    break;
+                }
+            }
+            if ($last_added == null)
+            {
+                $response->set_status("NO_OK");
+                $response->data_add(new ErrorElement("no category for that product", "product"));
+                return $response;
+            }
+            
+            foreach($result as $loop) // While not root.
+            {
+                if ($last_added->category_id == 1) 
+                {
+                    break; // If root, break.
+                }
+
+                foreach($result as $item)
+                {
+                    if ($last_added->subcategory_of == $item->category_id)
+                    {
+                        $last_added = $item;
+                        array_push($path, $item);
+                        break;
+                    }
+                }
+            }
+
+            $response->set_status("OK");
+            $response->data_set($path);
+        } 
+        else 
+        {
+            $response->set_status("NO_OK");
+            $response->data_add(new ErrorElement("no categories created", "category"));
+            return $response;
+        }
+
+        return $response;
+    }
+
+
     public static function get($db, $product_id, $language) : Response 
     {
         $response = new Response();
@@ -49,6 +121,8 @@ class Product {
         if ($statement->rowCount() > 0) 
         {
             $result = $result[0];
+            $result->categories_path = Product::get_categoreis_path($db, $result->category_id, $language)->data;
+
             $response->set_status("OK");
             $response->data_set($result);
         } 

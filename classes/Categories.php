@@ -128,6 +128,47 @@ class Categories {
         return $response;
     }
 
+
+    /*
+    public static function get_id_by_name($db, $category_name = null) : int 
+    {
+        if ($category_name == null || strlen($category_name) === 0)
+        {
+            $category_name = "root";
+        } 
+        else 
+        {
+            $category_name = Helpers::sanitize_string($category_name, false, 100);
+            $category_name = preg_replace("/-/", " ", $category_name); // spaces to space     
+        }
+
+        $db_table_categories = $GLOBALS["db_table_categories"];
+
+        $query = "SELECT category_id FROM $db_table_categories 
+            WHERE 
+            name_pl=:category_name OR
+            name_en=:category_name 
+            LIMIT 1
+        ";
+        $statement = $db->prepare($query);
+        $statement->bindParam(":category_name", $category_name, PDO::PARAM_STR);
+        $statement->execute();
+        $result_base = $statement->fetchAll(PDO::FETCH_OBJ);
+
+        if ($statement->rowCount() > 0) 
+        {
+            $result_base = $result_base[0];
+        } 
+        else 
+        {
+            $response->set_status("NO_OK");
+            $response->data_add(new ErrorElement("category not found", "category"));
+            return $response;
+        }
+    }
+    */
+
+
     public static function get_tree($db, $language, $category_name = null) : Response 
     {
         $response = new Response();
