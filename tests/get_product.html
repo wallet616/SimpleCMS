@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Product</title>
+
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="config.js"></script>
+
+    <style>
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(
+                /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                function (match) {
+                    var cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+        }
+
+        $(document).ready(function () {
+
+            function success(response) {
+                $("#error").html("");
+
+                console.log(response);
+                $("#output").html(
+                    syntaxHighlight(JSON.stringify(response, undefined, 4))
+                );
+            }
+
+            function error(response) {
+                $("#output").html("");
+
+                console.log(response);
+                response = JSON.stringify(response, undefined, 4);
+                response = response.replace(/\\n/g, "<br>");
+                response = response.replace(/\\r/g, "");
+                $("#error").html(response);
+            }
+
+            function clear() {
+                $("#output").html("");
+                $("#error").html("");
+            }
+
+            function send() {
+
+                var path = (use_local_host) ? root_localhost_path : root_server_path;
+                path += "/requests/get_product.php";
+
+                var link = $("#link").val();
+
+                $.ajax({
+                    url: path,
+                    method: "GET",
+                    dataType: "json",
+                    data: {
+                        link: link
+                    },
+                    success: success,
+                    error: error
+                });
+            }
+
+            $("#send").click(send);
+            $("#clear").click(clear);
+        });
+    </script>
+
+    <div id="form">
+        <input type="text" id="link" value="id1-test-product-something">
+        <br>
+        <br>
+        <button id="send">Send</button>
+    </div>
+
+    <br>
+    <button id="clear">Clear</button>
+    <pre id="output"></pre>
+    <div id="error"></div>
+</body>
+
+</html>
