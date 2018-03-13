@@ -45,8 +45,8 @@ class Categories {
         $statement->execute();
         $result = $statement->fetchAll(PDO::FETCH_OBJ);
 
-        $response->set_status("OK");
         $response->data_set($result[0]);
+        $response->set_status("OK");
 
         return $response;
     }
@@ -122,9 +122,9 @@ class Categories {
         $statement->execute();
         $result = $statement->fetchAll(PDO::FETCH_OBJ);
 
-        $response->set_status("OK");
         $response->data_set($result[0]);
-
+        $response->set_status("OK");
+       
         return $response;
     }
 

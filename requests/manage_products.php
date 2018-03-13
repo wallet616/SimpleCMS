@@ -33,10 +33,10 @@ switch ($command) {
         $response = Product::create($db, $category_id, $product_code, $name_pl, $name_en, $description_pl, $description_en);
         break;
     case "delete":
-        //$response = Product::delete($db, $product_id);
+        $response = Product::delete($db, $product_id);
         break;
     case "update":
-        //$response = Product::update($db, $id, $subcategory_of, $name_pl, $name_en);
+        $response = Product::update($db, $product_id, $category_id, $product_code, $name_pl, $name_en, $description_pl, $description_en);
         break;
 
     default:
